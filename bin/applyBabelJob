@@ -82,12 +82,12 @@ new AssetGraph({root: commandLineOptions.root}).on('afterTransform', function (t
                 var i18nAsset = this.vars[key];
                 if (!(key in i18nAsset.parseTree)) {
                     i18nAsset.parseTree[key] = {};
-                    assetGraph.markAssetDirty(i18nAsset);
+                    i18nAsset.markDirty();
                 }
                 _.each(translationsByKeyAndLocaleId[key], function (translation, localeId) {
                     if (!(localeId in i18nAsset.parseTree[key]) || translation !== i18nAsset.parseTree[key][localeId]) {
                         i18nAsset.parseTree[key][localeId] = translation;
-                        assetGraph.markAssetDirty(i18nAsset);
+                        i18nAsset.markDirty();
                     }
                 });
                 this();
@@ -103,7 +103,7 @@ new AssetGraph({root: commandLineOptions.root}).on('afterTransform', function (t
                 // Hack: Inject the new relations at the top of the file
                 _.each(newI18nRelationsByJavaScriptId, function (i18nRelations, javaScriptId) {
                     var javaScript = assetGraph.idIndex[javaScriptId];
-                    assetGraph.markAssetDirty(javaScript);
+                    javaScript.markDirty();
                     javaScript.getText = function (cb) {
                         javaScript.getDecodedSrc(passError(cb, function (decodedSrc) {
                             var oneIncludeStatements = i18nRelations.map(function (i18nRelation) {

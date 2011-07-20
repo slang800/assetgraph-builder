@@ -64,7 +64,7 @@ new AssetGraph({root: commandLineOptions.root}).on('afterTransform', function (t
                         }
                         i18nAsset.parseTree[key][leastSpecificLocaleId] = value;
                         console.log(i18nAsset.url + ": " + key + " already found, added entry for " + leastSpecificLocaleId);
-                        assetGraph.markAssetDirty(i18nAsset);
+                        i18nAsset.markDirty();
                     });
                     this();
                 })
@@ -79,7 +79,7 @@ new AssetGraph({root: commandLineOptions.root}).on('afterTransform', function (t
                     // Hack: Inject the new relations at the top of the file
                     _.each(newI18nRelationsByJavaScriptId, function (i18nRelations, javaScriptId) {
                         var javaScript = assetGraph.idIndex[javaScriptId];
-                        assetGraph.markAssetDirty(javaScript);
+                        javaScript.markDirty();
                         javaScript.getText = function (cb) {
                             javaScript.getDecodedSrc(passError(cb, function (decodedSrc) {
                                 var oneIncludeStatements = i18nRelations.map(function (i18nRelation) {
