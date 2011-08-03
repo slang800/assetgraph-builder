@@ -37,15 +37,15 @@ new AssetGraph({root: commandLineOptions.root}).on('afterTransform', function (t
                 assetGraph.findRelations({from: asset}).forEach(function (outgoingRelation) {
                     assetGraph.detachAndRemoveRelation(outgoingRelation);
                 });
-                asset.getDecodedSrc(this);
+                asset.getText(this);
             })
             .unflatten()
-            .seq(function (decodedSrcs) {
-                var flattenedSrc = decodedSrcs.join("\n").replace(/one\.include\(([^\)]*)\);?\n?/g, "");
+            .seq(function (texts) {
+                var flattenedText = texts.join("\n").replace(/one\.include\(([^\)]*)\);?\n?/g, "");
                 if ('o' in commandLineOptions) {
-                    fs.writeFile(commandLineOptions.o, flattenedSrc, AssetGraph.assets.JavaScript.prototype.encoding, cb);
+                    fs.writeFile(commandLineOptions.o, flattenedText, AssetGraph.assets.JavaScript.prototype.encoding, cb);
                 } else {
-                    console.log(flattenedSrc);
+                    console.log(flattenedText);
                 }
             })
             .seq(function () {
