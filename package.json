@@ -45,6 +45,7 @@
     "publishConfig": {
         "registry": "http://registry.npmjs.org/"
     },
+    "tag": "v1.8.0beta15-fix",
     "scripts": {
         "prepublish": "vows"
     }
