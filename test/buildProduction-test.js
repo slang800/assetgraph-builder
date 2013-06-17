@@ -2,6 +2,7 @@ var vows = require('vows'),
     assert = require('assert'),
     Stream = require('stream'),
     _ = require('underscore'),
+    vm = require('vm'),
     gm = require('gm'),
     AssetGraph = require('../lib/AssetGraph');
 
@@ -786,48 +787,6 @@ vows.describe('buildProduction').addBatch({
         },
         'the graph should contain one JavaScript asset': function (assetGraph) {
             assert.equal(assetGraph.findAssets({type: 'JavaScript'}).length, 1);
-        }
-    },
-    'After loading a test case for issue #69': {
-        topic: function () {
-            new AssetGraph({root: __dirname + '/buildProduction/issue69/'})
-                .registerRequireJsConfig({preventPopulationOfJavaScriptAssetsUntilConfigHasBeenFound: true})
-                .loadAssets('index.html')
-                .buildProduction({version: false})
-                .run(this.callback);
-        },
-        'the graph should contain a single JavaScript asset with the expected contents': function (assetGraph) {
-            var javaScriptAssets = assetGraph.findAssets({type: 'JavaScript'});
-            assert.equal(javaScriptAssets.length, 1);
-            assert.matches(javaScriptAssets[0].text, /SockJS=[\s\S]*define\("main",function\(\)\{\}\);/);
-        },
-        'then run the JavaScript asset in a jsdom window and wait for the alert call': {
-            topic: function (assetGraph) {
-                var html = assetGraph.findAssets({type: 'Html'})[0],
-                    javaScript = assetGraph.findAssets({type: 'JavaScript'})[0],
-                    context = vm.createContext(),
-                    callback = this.callback;
-                require('assetgraph/lib/util/extendWithGettersAndSetters')(context, html.parseTree.createWindow());
-                context.window = context;
-                context.alert = function (message) {
-                    if (/^got sockjs/.test(message)) {
-                        process.nextTick(function () {
-                            callback(null, null);
-                        });
-                    }
-                };
-                context.errorInstance = null;
-                try {
-                    vm.runInContext(javaScript.text, context, javaScript.url);
-                } catch (e) {
-                    process.nextTick(function () {
-                        callback(e);
-                    });
-                }
-            },
-            'no JavaScript error should have occurred during the execution': function (err, result) {
-                assert.isNull(err);
-            }
         }
     },
     'After loading a test case for issue #83': {
